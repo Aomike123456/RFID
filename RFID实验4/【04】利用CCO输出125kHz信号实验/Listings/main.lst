@@ -1,0 +1,136 @@
+C51 COMPILER V9.60.0.0   MAIN                                                              06/07/2023 12:40:14 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          /*********************************************************************
+   2           * 实验名称：利用CCO输出125kHz信号实验
+   3           * 可配书籍：上册-《深入浅出STC8增强型51单片机进阶攻略》已经出版
+   4                       下册-《深入浅出STC8增强型51单片机实战攻略》还在写作
+   5           * 书籍备注：龙顺宇编著 清华大学出版社出版
+   6           * 淘宝店铺：https://520mcu.taobao.com/
+   7           * 实验平台：思修电子工作室SX-RFID-B低频ID识别与应用开发板 Long
+   8           * 芯片型号：STC8G1K08/17（微调后可移植至STC8A/F/C/G/H系列单片机）
+   9           * 时钟说明：芯片内部12MHz，在使用STC-ISP软件时需要先配置然后下载到
+  10                       单片机使得时钟配置生效。
+  11           * 实验说明：将逻辑分析仪或者示波器的通道1连接到主控单片机的P1.6引脚
+  12           （即开发板激励信号选择的“M”引针），将逻辑分析仪或者示波器的地与开发
+  13           板进行共地处理。将USB线插入开发板的Uart-USB接口，检查无误后给开发板
+  14           上电，做好STC-ISP配置并下载程序，可观察到逻辑分析仪或者示波器上出现
+  15           了125kHz左右的时钟信号输出，从而学习CCO功能让内部高速时钟进行96分频
+  16           得到125kHz信号的方法和效果。
+  17          *********************************************************************/
+  18          #include  "STC8H.h"     //主控芯片的头文件
+  19          /***************************常用数据类型定义*************************/
+  20          #define u8  uint8_t
+  21          #define u16 uint16_t
+  22          #define u32 uint32_t
+  23          typedef unsigned char  uint8_t;
+  24          typedef unsigned int   uint16_t;
+  25          typedef unsigned long  uint32_t;
+  26          /***************************端口/引脚定义区域************************/
+  27          /***************************用户自定义数据区域***********************/
+  28          /*****************************函数声明区域***************************/
+  29          void delay(u16 Count);  //延时函数
+  30          void IO_init(void);     //IO初始化函数
+  31          void SYSCLK_CCO(u8 TYPE,u8 SET_F,u8 SET_P);//系统时钟输出函数
+  32          /******************************主函数区域****************************/
+  33          void main(void)
+  34          {
+  35   1        IO_init();            //IO初始化
+  36   1        SYSCLK_CCO(1,96,1);   //P1.6输出96分频的内部高速时钟12M/96=125kHz
+  37   1        while(1);             //程序“停止”
+  38   1      }
+  39          /********************************************************************/
+  40          //延时函数delay()，有形参Count用于控制延时函数执行次数，无返回值
+  41          /********************************************************************/
+  42          void delay(u16 Count)
+  43          {
+  44   1        u8 i,j;
+  45   1        while(Count--)
+  46   1        {
+  47   2          for(i=0;i<50;i++)
+  48   2            for(j=0;j<20;j++);
+  49   2        }
+  50   1      }
+  51          /********************************************************************/
+  52          //IO初始化函数IO_Init()，无形参，无返回值
+  53          /********************************************************************/
+  54          void IO_init(void)
+C51 COMPILER V9.60.0.0   MAIN                                                              06/07/2023 12:40:14 PAGE 2   
+
+  55          {
+  56   1        //配置P1.6为推挽/强上拉模式
+  57   1        P1M0|=0x40;           //P1M0.6=1
+  58   1        P1M1&=0xBF;           //P1M1.6=0
+  59   1        //配置P5.4为推挽/强上拉模式
+  60   1        //P5M0|=0x10;         //P5M0.4=1
+  61   1        //P5M1&=0xEF;         //P5M1.4=0
+  62   1        delay(10);            //等待I/O模式配置稳定
+  63   1      }
+  64          /********************************************************************/
+  65          //系统时钟输出函数SYSCLK_CCO()，有形参TYPE用于选择时钟源（0-外部时钟）
+  66          //（1-片内高速时钟）（2-片内低速时钟），有形参SET_F用于指定时钟源
+  67          //分频系数，有形参SET_P用于指定输出引脚的选择（P5.4/P1.6）无返回值
+  68          /********************************************************************/
+  69          void SYSCLK_CCO(u8 TYPE,u8 SET_F,u8 SET_P)
+  70          {
+  71   1        P_SW2|=0x80;          //允许访问扩展特殊功能寄存器XSFR
+  72   1        switch(TYPE)
+  73   1        {
+  74   2          case 0:
+  75   2          {
+  76   3            XOSCCR|=0xC0;     //使能外部晶体振荡器
+  77   3            while(!(XOSCCR&0x01));//等待外部时钟稳定
+  78   3            //配置MCKSEL[1:0]=“01”，选择外部时钟
+  79   3            CLKSEL&=0xFD;     //清零MCKSEL[1:0]的高位
+  80   3            CLKSEL|=0x01;     //配置MCKSEL[1:0]的低位
+  81   3          }break;   
+  82   2          case 1:             //若选择片内高速时钟，则无需配置时钟选择
+  83   2          {}break;
+  84   2          case 2:
+  85   2          {
+  86   3            IRC32KCR|=0x80;   //使能内部32kHz低速IRC控制寄存器
+  87   3            while(!(IRC32KCR&0x01));//等待内部低速时钟稳定
+  88   3            CLKSEL|=0x03;     //配置MCKSEL[1:0]=“11”选择内部低速IRC时钟
+  89   3          }break;
+  90   2        }
+  91   1        switch(SET_F)
+  92   1        {
+  93   2          case 1:{MCLKOCR&=0x80;MCLKOCR|=0x01;}break;   //Fsysclk/1
+  94   2          case 2:{MCLKOCR&=0x80;MCLKOCR|=0x02;}break;   //Fsysclk/2
+  95   2          case 4:{MCLKOCR&=0x80;MCLKOCR|=0x04;}break;   //Fsysclk/4
+  96   2          case 8:{MCLKOCR&=0x80;MCLKOCR|=0x08;}break;   //Fsysclk/8
+  97   2          case 16:{MCLKOCR&=0x80;MCLKOCR|=0x10;}break;  //Fsysclk/16
+  98   2          case 32:{MCLKOCR&=0x80;MCLKOCR|=0x20;}break;  //Fsysclk/32
+  99   2          case 64:{MCLKOCR&=0x80;MCLKOCR|=0x40;}break;  //Fsysclk/64
+ 100   2          case 96:{MCLKOCR&=0x80;MCLKOCR|=0x60;}break;  //Fsysclk/96
+ 101   2          case 127:{MCLKOCR&=0x80;MCLKOCR|=0x7F;}break; //Fsysclk/127
+ 102   2        }
+ 103   1        if(SET_P==0)
+ 104   1          MCLKOCR&=0x7F;      //配置时钟由P5.4引脚输出
+ 105   1        else
+ 106   1          MCLKOCR|=0x80;      //配置时钟由P1.6引脚输出
+ 107   1        P_SW2&=0x7F;          //结束并关闭XSFR访问
+ 108   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    301    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       1
+C51 COMPILER V9.60.0.0   MAIN                                                              06/07/2023 12:40:14 PAGE 3   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

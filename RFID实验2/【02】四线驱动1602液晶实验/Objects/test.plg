@@ -1,0 +1,21 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Project:</h2>
+C:\Users\龙顺宇\Desktop\【V3.0】STC8战将小王子源码集合\【17】四线驱动1602节省IO实验\test.uvproj
+Project File Date:  09/16/2021
+
+<h2>Output:</h2>
+Rebuild target 'Target 1'
+compiling main.c...
+linking...
+Program Size: data=44.0 xdata=0 code=436
+creating hex file from ".\Objects\test"...
+".\Objects\test" - 0 Error(s), 0 Warning(s).
+Rebuild target 'Target 1'
+compiling main.c...
+linking...
+Program Size: data=44.0 xdata=0 code=436
+creating hex file from ".\Objects\test"...
+".\Objects\test" - 0 Error(s), 0 Warning(s).

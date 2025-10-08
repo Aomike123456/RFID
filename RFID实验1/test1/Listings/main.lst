@@ -1,0 +1,95 @@
+C51 COMPILER V9.60.0.0   MAIN                                                              09/11/2025 08:36:46 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: E:\keil-ARM\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\mai
+                    -n.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include  "STC8G.h"       //????????
+   2          /***************************????????*************************/
+   3          #define u8  uint8_t
+   4          #define u16 uint16_t
+   5          #define u32 uint32_t
+   6          typedef unsigned char    uint8_t;
+   7          typedef unsigned int     uint16_t;
+   8          typedef unsigned long    uint32_t;
+   9          /***************************??/??????************************/
+  10          sbit RLY=P5^5;            //???????
+  11          sbit KEY1=P3^4;           //??1
+  12          sbit KEY2=P3^3;           //??2
+  13          /*****************************??????***************************/
+  14          void delay(u16 Count);    //????
+  15          void IO_init(void);       //IO?????
+  16          void KEY_Prosser(void);   //??????
+  17          /*****************************??????***************************/
+  18          void main(void)
+  19          {
+  20   1        IO_init();        //IO???
+  21   1        while(1)  
+  22   1        {
+  23   2          KEY_Prosser();  //????
+  24   2        }
+  25   1      }
+  26          
+  27          void delay(u16 Count)
+  28          {
+  29   1        u8 i,j;
+  30   1        while (Count--)
+  31   1        {
+  32   2          for(i=0;i<50;i++)
+  33   2            for(j=0;j<20;j++);
+  34   2        }
+  35   1      }
+  36          
+  37          void IO_init(void)
+  38          {
+  39   1        //??P3.3-4????/?????
+  40   1        P3M0&=0xE7;     //P3M0.3-4=0
+  41   1        P3M1&=0xE7;     //P3M1.3-4=0
+  42   1        //??P5.5???/?????
+  43   1        P5M0|=0x20;     //P5M0.5=1
+  44   1        P5M1&=0xDF;     //P5M1.5=0
+  45   1        RLY=0;          //?????
+  46   1        delay(10);      //??I/O??????
+  47   1      }
+  48          
+  49          void KEY_Prosser(void)
+  50          {
+  51   1        if(KEY1==0)     //KEY1???
+  52   1        {
+  53   2          delay(5);     //????“??”
+  54   2          if(KEY1==0)   //KEY1?????
+C51 COMPILER V9.60.0.0   MAIN                                                              09/11/2025 08:36:46 PAGE 2   
+
+  55   2          {
+  56   3            RLY=1;      //?????
+  57   3          }
+  58   2          while(!KEY1); //????
+  59   2        }
+  60   1        if(KEY2==0)     //KEY2???
+  61   1        {
+  62   2          delay(5);     //????“??”
+  63   2          if(KEY2==0)   //KEY2?????
+  64   2          {
+  65   3            RLY=0;      //?????
+  66   3          }
+  67   2          while(!KEY2); //????
+  68   2        } 
+  69   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    107    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
